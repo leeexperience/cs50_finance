@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+{% block main %}
+    <form action="/quote" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="symbol" placeholder="Symbol" type="text" id="searchInput">
+        </div>
+        <div></div>
+        <div>
+            <table class="table" id="suggestions">
+                <thead>
+                    <tr>
+                        <th class="centered-header" width="150px">Symbol</th>
+                        <th class="centered-header" width="150px">Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Suggestions will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <script>
+            const stockSymbols = {{ stocks | tojson }};
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const input = this.value.toUpperCase();
+                const suggestions = document.getElementById('suggestions').getElementsByTagName('tbody')[0];
+                suggestions.innerHTML = '';
+
+                if (input) {
+                    const filteredSymbols = stockSymbols.filter(item => item.symbol.startsWith(input)).slice(0, 10);
+                    filteredSymbols.forEach(item => {
+                        const row = document.createElement('tr');
+                        const symbolCell = document.createElement('td');
+                        const nameCell = document.createElement('td');
+
+                        symbolCell.textContent = item.symbol;
+                        nameCell.textContent = item.name;
+
+                        row.appendChild(symbolCell);
+                        row.appendChild(nameCell);
+
+                        row.addEventListener('click', function() {
+                            document.getElementById('searchInput').value = item.symbol;
+                            suggestions.innerHTML = '';
+                        });
+
+                        suggestions.appendChild(row);
+                    });
+                }
+            });
+        </script>
+        <button class="btn btn-primary" type="submit">Get Quote</button>
+    </form>
+{% endblock %}
